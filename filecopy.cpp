@@ -29,11 +29,33 @@
     const char* destination_file = argv[2];
 
     // Declaration of pipe
-    int pipefile[2];
+    int pipePr[2];
     // Checking if pipe initialization has an error
-    if (pipe(pipefile) == - 1) {
-        cerr << "pipe error";
-        return 1;
-    };
+    if (pipe(pipePr) == - 1) {
+      cerr << "pipe error";
+      return 1;
+    }
+    // create a child process
+    pid_t pid = fork();
 
+    if (pid < 0) {
+      cerr << "fork error"; // error creating child
+      return 1;
+    }
+    if (pid > 0) {
+      // parent process
+      close(pipePr[0]); // parent doesn’t read from pipe
+
+      // opens the source file to read
+      int srcRead = open(source_file, O_RDONLY);
+
+      if (srcRead < 0) { // if open fails
+        cerr << "open source";
+        close(pipePr[1]); // close write end of pipe
+        return 1;
+      }
+    }
+    else { // if child process (pid == 0)
+      // child will close pipePr[1] and read from pipePr[0]
+    }
  }
