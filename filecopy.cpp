@@ -1,4 +1,5 @@
-/**
+/*
+ *
  * filecopy.cpp
  * 
  * This program copies files using a pipe.
