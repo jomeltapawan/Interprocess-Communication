@@ -13,6 +13,7 @@
  #include <sys/types.h>
  #include <sys/wait.h>
 
+ #define BUFFER_SIZE 4096
  #define READ_END 0
  #define WRITE_END 1
 
@@ -44,18 +45,42 @@
     }
     if (pid > 0) {
       // parent process
+      // Reading from source and writing to the pipe buffer
       close(pipePr[0]); // parent doesn’t read from pipe
 
       // opens the source file to read
-      int srcRead = open(source_file, O_RDONLY);
+      int srcFile = open(source_file, O_RDONLY);
 
-      if (srcRead < 0) { // if open fails
+      if (srcFile < 0) { // if open fails
         cerr << "open source";
         close(pipePr[1]); // close write end of pipe
         return 1;
       }
+    char buffer[BUFFER_SIZE];     // Initializing the buffer using size of 4kb stated earlier in the header of the program
+    ssize_t readChunks;   //Counter for how many bytes are read
+
+    while((readChunks = read(srcFile, buffer, BUFFER_SIZE)) > 0) {
+      if (write(pipePr[1], buffer, readChunks) != readChunks) {
+        cerr << "Failed writing to the pipe"; // Error message in writing to pipe
+        close(srcFile); //closes file descriptor
+        close(pipePr[1]); // closes the pipe parent write process
+        return 1; // failure exit code
+      }
     }
-    else { // if child process (pid == 0)
-      // child will close pipePr[1] and read from pipePr[0]
+
+    if (readChunks < 0) {
+      cerr << "Failed to read";
+    }
+
+    close(srcFile);
+    close(pipePr[1]); // End of File
+    wait(nullptr); // Waits for child process
+    }
+
+    else {
+      // child process
+      // Reading from the pipe and writing to the destination
+      close(pipePr[1]); // Closes the parent process
+      
     }
  }
