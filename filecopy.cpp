@@ -20,8 +20,11 @@
 
  int main(int argc, char *argv[])
  {
-    if (argc != 3) {
+    if (argc != 3) { // Error handling for incorrect command line usage
         cout << "Error Usage:" << argv[0] << "(source_file) (destination_file)" << endl;
         return 0;
-    }
+    } // Command line should be ./filecopy.cpp source_file destination_file
+
+    const char* source_file = argv[1];
+    const char* destination_file = argv[2];
  }
