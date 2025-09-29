@@ -21,10 +21,19 @@
  int main(int argc, char *argv[])
  {
     if (argc != 3) { // Error handling for incorrect command line usage
-        cout << "Error Usage:" << argv[0] << "(source_file) (destination_file)" << endl;
-        return 0;
+        cerr << "Error Usage:" << argv[0] << "(source_file) (destination_file)" << endl;
+        return 1;
     } // Command line should be ./filecopy.cpp source_file destination_file
 
     const char* source_file = argv[1];
     const char* destination_file = argv[2];
+
+    // Declaration of pipe
+    int pipefile[2];
+    // Checking if pipe initialization has an error
+    if (pipe(pipefile) == - 1) {
+        cerr << "pipe error";
+        return 1;
+    };
+
  }
