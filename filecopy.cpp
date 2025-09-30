@@ -22,7 +22,7 @@
  int main(int argc, char *argv[])
  {
     if (argc != 3) { // Error handling for incorrect command line usage
-      cerr << "Error Usage:" << argv[0] << "(source_file) (destination_file)" << endl;
+      cerr << "Error Usage: " << argv[0] << "(source_file) (destination_file)" << endl;
       return 1;
     } // Command line should be ./filecopy.cpp source_file destination_file
 
@@ -69,26 +69,41 @@
     }
 
     if (readChunks < 0) {
-      cerr << "Error occurred when reading";
+      cerr << "Error Reading pipe";
     }
 
     close(srcFile);
-    close(pipePr[1]); // End of File
+    close(pipePr[1]); // closes the parent process
     wait(nullptr); // Waits for child process
     }
 
     else {
       // child process
       // Reading from the pipe and writing to the destination
-      close(pipePr[1]); // Closes the parent process
-
-      int dstFile = open(destination_file, O_WRONLY); // Opens the destination file in write mode
+      close(pipePr[1]); // Ensure Parent process is closed
+      int dstFile = open(destination_file, O_WRONLY | O_CREAT | O_TRUNC | 0644); // Opens the destination file in write mode
       if (dstFile < 0) {
         cerr << "Error opening destination file '" << argv[2] << "'";
         close(pipePr[0]); // Ensures pipe is not hanging when program exits
         return 1;
       }
 
-      
+      // Buffer for the child process
+      char buffer[BUFFER_SIZE];
+      ssize_t readChunks;
+
+      while ((readChunks = read(pipePr[0], buffer, BUFFER_SIZE)) > 0) {
+        if (write(dstFile, buffer, readChunks) != readChunks) { //Error Handling for the write to destination process
+          cerr << "Error writing to the destination file";
+          close(dstFile); // Closes the file to prevent overhead
+          close(pipePr[0]); // Closes the pipe so it is not left hanging, will continue process when re-executed
+          return 1;
+        }
+      }
+
+      close(dstFile);
+      close(pipePr[0]); //Closing the child proces
     }
+
+// Yay you're done!!
  }
