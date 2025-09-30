@@ -81,7 +81,7 @@
       // child process
       // Reading from the pipe and writing to the destination
       close(pipePr[1]); // Ensure Parent process is closed
-      int dstFile = open(destination_file, O_WRONLY | O_CREAT | O_TRUNC | 0644); // Opens the destination file in write mode
+      int dstFile = open(destination_file, O_WRONLY | O_CREAT | O_TRUNC | 0644); // Opens the destination file in the necessary permissions to create a file, truncate data, and write to it
       if (dstFile < 0) {
         cerr << "Error opening destination file '" << argv[2] << "'";
         close(pipePr[0]); // Ensures pipe is not hanging when program exits
