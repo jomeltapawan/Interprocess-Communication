@@ -68,10 +68,6 @@
       }
     }
 
-    if (readChunks < 0) {
-      cerr << "Error Reading pipe";
-    }
-
     close(srcFile);
     close(pipePr[1]); // closes the parent process
     wait(nullptr); // Waits for child process
