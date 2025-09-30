@@ -22,8 +22,8 @@
  int main(int argc, char *argv[])
  {
     if (argc != 3) { // Error handling for incorrect command line usage
-        cerr << "Error Usage:" << argv[0] << "(source_file) (destination_file)" << endl;
-        return 1;
+      cerr << "Error Usage:" << argv[0] << "(source_file) (destination_file)" << endl;
+      return 1;
     } // Command line should be ./filecopy.cpp source_file destination_file
 
     const char* source_file = argv[1];
@@ -33,26 +33,26 @@
     int pipePr[2];
     // Checking if pipe initialization has an error
     if (pipe(pipePr) == - 1) {
-      cerr << "pipe error";
+      cerr << "Error occurred in pipe initialization";
       return 1;
     }
     // create a child process
     pid_t pid = fork();
 
     if (pid < 0) {
-      cerr << "fork error"; // error creating child
+      cerr << "Error occurred when creating fork"; // error creating child
       return 1;
     }
     if (pid > 0) {
       // parent process
       // Reading from source and writing to the pipe buffer
-      close(pipePr[0]); // parent doesn’t read from pipe
+      close(pipePr[0]); // Closes pipe because the parent does not read from the pipe
 
       // opens the source file to read
       int srcFile = open(source_file, O_RDONLY);
 
       if (srcFile < 0) { // if open fails
-        cerr << "open source";
+        cerr << "Unable to open source file '" << argv[1] << "'";
         close(pipePr[1]); // close write end of pipe
         return 1;
       }
@@ -61,15 +61,15 @@
 
     while((readChunks = read(srcFile, buffer, BUFFER_SIZE)) > 0) {
       if (write(pipePr[1], buffer, readChunks) != readChunks) {
-        cerr << "Failed writing to the pipe"; // Error message in writing to pipe
+        cerr << "Error writing to the pipe"; // Error message in writing to pipe
         close(srcFile); //closes file descriptor
         close(pipePr[1]); // closes the pipe parent write process
-        return 1; // failure exit code
+        return 1; 
       }
     }
 
     if (readChunks < 0) {
-      cerr << "Failed to read";
+      cerr << "Error occurred when reading";
     }
 
     close(srcFile);
@@ -81,6 +81,14 @@
       // child process
       // Reading from the pipe and writing to the destination
       close(pipePr[1]); // Closes the parent process
+
+      int dstFile = open(destination_file, O_WRONLY); // Opens the destination file in write mode
+      if (dstFile < 0) {
+        cerr << "Error opening destination file '" << argv[2] << "'";
+        close(pipePr[0]); // Ensures pipe is not hanging when program exits
+        return 1;
+      }
+
       
     }
  }
