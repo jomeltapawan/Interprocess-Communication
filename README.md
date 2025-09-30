@@ -14,4 +14,8 @@ note: the "-std=c++11" flag may be omitted if the program is not compiling, this
 Then run:
 $ ./filecopy input.txt copy.txt
 
+If there is any trouble opening the copy.txt file, something I had to do locally was this command:
+$ sudo chmod a+rwx copy.txt
+This was needed in order to allow the user the appropriate permissions to open the copy.txt file
+
 Hopefully this command successfully created a new file and piped/copied the input file's contents into the newly created copy file. Otherwise, there are plenty of error handling messages at each critical point in the program to point out where an error occurred.
